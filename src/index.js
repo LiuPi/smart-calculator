@@ -1,9 +1,9 @@
-function calculate(rpn) {
+function getValue(arr) {
     var v1, v2;
     var value = null;
     var values = [];
-    for (var i = 0; i < rpn.length; i++) {
-        value = rpn[i];
+    for (var i = 0; i < arr.length; i++) {
+        value = arr[i];
         switch (value) {
             case '+':
                 v2 = values.pop();
@@ -25,6 +25,11 @@ function calculate(rpn) {
                 v1 = values.pop();
                 values.push(v1 / v2);
                 break;
+            case '^':
+                v2 = values.pop();
+                v1 = values.pop();
+                values.push(Math.pow(v1, v2));
+                break;
             default:
                 values.push(parseFloat(value));
         }
@@ -44,7 +49,7 @@ function getReversePolishNotation(p) {
             case '-':
                 if (operators.length) {
                     operator = operators.pop();
-                    while (operator && operator !== '(') {
+                    while (operator) {
                         output.push(operator);
                         operator = operators.pop();
                     }
@@ -53,12 +58,14 @@ function getReversePolishNotation(p) {
                     }
                 }
                 operators.push(value);
+                console.log("operators " + operators);
+                console.log("output " + output);
                 break;
             case '*':
             case '/':
                 if (operators.length) {
                     operator = operators.pop();
-                    while (operator && operator !== '(' && operator !== '+' && operator !== '-') {
+                    while (operator && operator !== '+' && operator !== '-') {
                         output.push(operator);
                         operator = operators.pop();
                     }
@@ -67,22 +74,16 @@ function getReversePolishNotation(p) {
                     }
                 }
                 operators.push(value);
+                console.log("operators " + operators);
+                console.log("output " + output);
                 break;
-            case '(':
+            case '^':
                 operators.push(value);
-                break;
-            case ')':
-                operator = operators.pop();
-                while (operator !== '(') {
-                    if (!operator) {
-                        throw "Brackets are inconsistent";
-                    }
-                    output.push(operator);
-                    operator = operators.pop();
-                }
                 break;
             default:
                 output.push(value);
+                console.log("operators " + operators);
+                console.log("output " + output);
         }
     }
     while (operators.length) {
@@ -91,57 +92,6 @@ function getReversePolishNotation(p) {
     return output;
 }
 
-// function parseString(s) {
-//     s = s.replace(/\s+/g, '');
-//     var part = '';
-//     var parts = [];
-//     var prev = '';
-//     var value = '';
-//     for (var i = 0; i < s.length; i++) {
-//         value = s[i];
-//         switch (value) {
-//             case '+':
-//             case '*':
-//             case '/':
-//             case '(':
-//             case ')':
-//                 if (part) {
-//                     parts.push(part);
-//                     part = '';
-//                 }
-//                 parts.push(value);
-//                 break;
-//             case '-':
-//                 if (part) {
-//                     parts.push(part);
-//                     part = '';
-//                     parts.push(value);
-//                 } else {
-//                     if (i === 0
-//                         || prev === '+'
-//                         || prev === '-'
-//                         || prev === '*'
-//                         || prev === '/'
-//                         || prev === '('
-//                     ) {
-//                         part = value;
-//                     } else {
-//                         parts.push(value);
-//                     }
-//                 }
-//                 break;
-//             default:
-//                 part = part + value;
-//         }
-//         prev = value;
-//     }
-//     if (part) {
-//         parts.push(part);
-//     }
-//     return parts;
-// }
-
-//************class*********************
 class SmartCalculator {
 
     constructor(initialValue) {
@@ -149,7 +99,6 @@ class SmartCalculator {
         this.values = [];
         this.values.push(initialValue);
     }
-
 
     add(number) {
         this.initialValue += " + " + number;
@@ -181,15 +130,14 @@ class SmartCalculator {
 
     pow(number) {
         this.initialValue += " ^ " + number;
-        let n = this.values.pop();
-        this.values.push(Math.pow(n, number));
+        this.values.push("^");
+        this.values.push(number);
         return this;
     }
 
-
     result() {
         let rpn = getReversePolishNotation(this.values);
-        var result = calculate(rpn);
+        var result = getValue(rpn);
         return result;
     }
 }
